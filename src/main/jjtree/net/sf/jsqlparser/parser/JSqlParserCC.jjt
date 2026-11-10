@@ -2344,7 +2344,7 @@ TOKEN: /* Reserved SQL Keywords and structural tokens */
 |   <K_CSV:"CSV">
 |   <K_CURRENT: "CURRENT">
 |   <K_DATETIMELITERAL : "DATE" | "DATETIME" | "TIME" | "TIMESTAMP" | "TIMESTAMPTZ" >
-|   <K_DATE_LITERAL : "YEAR" | "MONTH" | "DAY" | "HOUR" | "MINUTE" | "SECOND" >
+|   <K_DATE_LITERAL : "YEAR" | "YEARS" | "MONTH" | "MONTHS" | "DAY" | "DAYS" | "HOUR" | "HOURS" | "MINUTE" | "MINUTES" | "SECOND" | "SECONDS" >
 |   <K_DEFAULT : "DEFAULT">
 |   <K_DISTINCT:"DISTINCT">
 |   <K_DISTINCTROW:"DISTINCTROW">

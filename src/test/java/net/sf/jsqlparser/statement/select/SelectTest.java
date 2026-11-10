@@ -4719,6 +4719,27 @@ public class SelectTest {
     }
 
     @Test
+    public void testDateArithmenticPluralUnitsIbmi() throws JSQLParserException {
+        assertSqlCanBeParsedAndDeparsed(
+                "SELECT CURRENT_DATE + 1 DAYS AS NEXT_DATE FROM SYSIBM.SYSDUMMY1");
+        assertSqlCanBeParsedAndDeparsed(
+                "SELECT CURRENT_DATE + 1 DAYS NEXT_DATE FROM SYSIBM.SYSDUMMY1");
+        assertSqlCanBeParsedAndDeparsed(
+                "SELECT CURRENT_DATE - 1 DAYS + 1 YEARS - 1 MONTHS FROM SYSIBM.SYSDUMMY1");
+        assertSqlCanBeParsedAndDeparsed(
+                "SELECT CURRENT_TIMESTAMP - S.ELAPSED_TIME DAYS AS EST_IPL_TS FROM TABLE(QSYS2.SYSTEM_STATUS()) S FETCH FIRST 1 ROW ONLY");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "SELECT CURRENT_DATE + (1 DAYS) AS NEXT_DATE FROM SYSIBM.SYSDUMMY1",
+            "SELECT CURRENT_DATE + (offset MONTHS) AS NEXT_DATE FROM mytable"
+    })
+    public void testDateArithmenticParenthesizedPluralIbmi(String sql) throws JSQLParserException {
+        assertSqlCanBeParsedAndDeparsed(sql, true);
+    }
+
+    @Test
     public void testDateArithmentic13() throws JSQLParserException {
         String sql = "SELECT INTERVAL 5 MONTH MONTH FROM mytable";
         assertSqlCanBeParsedAndDeparsed(sql);

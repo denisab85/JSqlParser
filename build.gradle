@@ -72,8 +72,8 @@ def getVersion = { boolean considerSnapshot ->
 
 // for publishing a release, call Gradle with Environment Variable RELEASE:
 // RELEASE=true gradle JSQLParser:publish
-version = getVersion( !System.getenv("RELEASE") )
-group = 'com.manticore-projects.jsqlformatter'
+version = '5.4.163'
+group = 'ca.denisab85'
 description = 'JSQLParser library'
 
 tasks.register('generateBuildInfo') {
@@ -596,8 +596,11 @@ tasks.matching { it.name in ['publish', 'publishToMavenCentral'] }.configureEach
 }
 
 mavenPublishing {
-    publishToMavenCentral(true)
-    signAllPublications()
+    def isParserRelease = !providers.environmentVariable("RELEASE").getOrElse("").isEmpty()
+    if (isParserRelease) {
+        publishToMavenCentral(true)
+        signAllPublications()
+    }
 
     coordinates(group, "jsqlparser", version)
 

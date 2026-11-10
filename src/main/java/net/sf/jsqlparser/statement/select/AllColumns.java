@@ -9,9 +9,11 @@
  */
 package net.sf.jsqlparser.statement.select;
 
+import net.sf.jsqlparser.expression.ColumnsTransformer;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.ParenthesedExpressionList;
 import net.sf.jsqlparser.parser.ASTNodeAccessImpl;
 import net.sf.jsqlparser.schema.Column;
 
@@ -22,6 +24,8 @@ public class AllColumns extends ASTNodeAccessImpl implements Expression {
     protected ExpressionList<Column> exceptColumns;
     protected List<SelectItem<?>> replaceExpressions;
     private String exceptKeyword;
+    private List<ColumnsTransformer> transformers;
+    private boolean renderTransformers;
 
     public AllColumns(ExpressionList<Column> exceptColumns,
             List<SelectItem<?>> replaceExpressions) {
@@ -41,12 +45,18 @@ public class AllColumns extends ASTNodeAccessImpl implements Expression {
         this(null, null);
     }
 
+    public AllColumns(List<ColumnsTransformer> transformers) {
+        this.transformers = transformers;
+        this.renderTransformers = true;
+    }
+
     public ExpressionList<Column> getExceptColumns() {
         return exceptColumns;
     }
 
     public AllColumns setExceptColumns(ExpressionList<Column> exceptColumns) {
         this.exceptColumns = exceptColumns;
+        invalidateDerivedTransformers();
         return this;
     }
 
@@ -55,6 +65,7 @@ public class AllColumns extends ASTNodeAccessImpl implements Expression {
             exceptColumns = new ExpressionList<>();
         }
         exceptColumns.add(column);
+        invalidateDerivedTransformers();
         return exceptColumns;
     }
 
@@ -64,6 +75,7 @@ public class AllColumns extends ASTNodeAccessImpl implements Expression {
 
     public AllColumns setReplaceExpressions(List<SelectItem<?>> replaceExpressions) {
         this.replaceExpressions = replaceExpressions;
+        invalidateDerivedTransformers();
         return this;
     }
 
@@ -72,6 +84,7 @@ public class AllColumns extends ASTNodeAccessImpl implements Expression {
             replaceExpressions = new ArrayList<>();
         }
         replaceExpressions.add(selectItem);
+        invalidateDerivedTransformers();
         return replaceExpressions;
     }
 
@@ -81,11 +94,52 @@ public class AllColumns extends ASTNodeAccessImpl implements Expression {
 
     public AllColumns setExceptKeyword(String exceptKeyword) {
         this.exceptKeyword = exceptKeyword;
+        invalidateDerivedTransformers();
         return this;
+    }
+
+    public List<ColumnsTransformer> getTransformers() {
+        if (transformers == null) {
+            transformers = new ArrayList<>();
+            if (exceptColumns != null && !exceptColumns.isEmpty()) {
+                transformers.add(new ColumnsTransformer(ColumnsTransformer.ColumnsTransformerType.EXCEPT)
+                        .setExceptColumns(new ParenthesedExpressionList<>(exceptColumns)));
+            }
+            if (replaceExpressions != null && !replaceExpressions.isEmpty()) {
+                transformers.add(new ColumnsTransformer(ColumnsTransformer.ColumnsTransformerType.REPLACE)
+                        .setReplaceItems(replaceExpressions));
+            }
+        }
+        return transformers;
+    }
+
+    public AllColumns setTransformers(List<ColumnsTransformer> transformers) {
+        this.transformers = transformers;
+        this.renderTransformers = true;
+        return this;
+    }
+
+    public AllColumns addTransformer(ColumnsTransformer transformer) {
+        getTransformers().add(transformer);
+        this.renderTransformers = true;
+        return this;
+    }
+
+    private void invalidateDerivedTransformers() {
+        if (!renderTransformers) {
+            transformers = null;
+        }
     }
 
     public StringBuilder appendTo(StringBuilder builder) {
         builder.append("*");
+        if (renderTransformers && transformers != null && !transformers.isEmpty()) {
+            for (ColumnsTransformer transformer : transformers) {
+                builder.append(" ");
+                transformer.appendTo(builder);
+            }
+            return builder;
+        }
         if (exceptColumns != null && !exceptColumns.isEmpty()) {
             builder.append(" ").append(exceptKeyword).append("( ");
             exceptColumns.appendTo(builder);
