@@ -4,7 +4,7 @@
 
     <groupId>ca.denisab85</groupId>
     <artifactId>jsqlparser</artifactId>
-    <version>5.4.163</version>
+    <version>5.4.164</version>
     <packaging>bundle</packaging>
 
     <name>JSQLParser library</name>

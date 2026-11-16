@@ -49,21 +49,19 @@ public class ASTNodeAccessImpl implements ASTNodeAccess {
     }
 
     public ASTNodeAccess getParent() {
-        Node parent = (Node) node.jjtGetParent();
-        while (parent.jjtGetValue() == null) {
-            parent = (Node) parent.jjtGetParent();
-        }
-
-        return ASTNodeAccess.class.cast(parent.jjtGetValue());
+        return getParent(ASTNodeAccess.class);
     }
 
     public <T extends ASTNodeAccess> T getParent(Class<T> clazz) {
+        if (node == null) {
+            return null;
+        }
         Node parent = (Node) node.jjtGetParent();
-        while (parent.jjtGetValue() == null || !clazz.isInstance(parent.jjtGetValue())) {
+        while (parent != null
+                && (parent.jjtGetValue() == null || !clazz.isInstance(parent.jjtGetValue()))) {
             parent = (Node) parent.jjtGetParent();
         }
-
-        return clazz.cast(parent.jjtGetValue());
+        return parent == null ? null : clazz.cast(parent.jjtGetValue());
     }
 
     @Override

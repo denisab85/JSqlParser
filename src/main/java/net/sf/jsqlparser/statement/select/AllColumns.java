@@ -102,12 +102,14 @@ public class AllColumns extends ASTNodeAccessImpl implements Expression {
         if (transformers == null) {
             transformers = new ArrayList<>();
             if (exceptColumns != null && !exceptColumns.isEmpty()) {
-                transformers.add(new ColumnsTransformer(ColumnsTransformer.ColumnsTransformerType.EXCEPT)
-                        .setExceptColumns(new ParenthesedExpressionList<>(exceptColumns)));
+                transformers.add(
+                        new ColumnsTransformer(ColumnsTransformer.ColumnsTransformerType.EXCEPT)
+                                .setExceptColumns(new ParenthesedExpressionList<>(exceptColumns)));
             }
             if (replaceExpressions != null && !replaceExpressions.isEmpty()) {
-                transformers.add(new ColumnsTransformer(ColumnsTransformer.ColumnsTransformerType.REPLACE)
-                        .setReplaceItems(replaceExpressions));
+                transformers.add(
+                        new ColumnsTransformer(ColumnsTransformer.ColumnsTransformerType.REPLACE)
+                                .setReplaceItems(replaceExpressions));
             }
         }
         return transformers;

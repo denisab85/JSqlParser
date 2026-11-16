@@ -72,7 +72,7 @@ def getVersion = { boolean considerSnapshot ->
 
 // for publishing a release, call Gradle with Environment Variable RELEASE:
 // RELEASE=true gradle JSQLParser:publish
-version = '5.4.163'
+version = '5.4.166'
 group = 'ca.denisab85'
 description = 'JSQLParser library'
 
@@ -642,8 +642,9 @@ mavenPublishing {
 }
 
 // Signing and its task wiring are handled by mavenPublishing.signAllPublications() above.
-// The manual `signing { required { ... hasTask("publish") } }` block that used to live here
-// never matched the `publishToMavenCentral` task, so the two disagreed about whether to sign.
+signing {
+    useGpgCmd()
+}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
